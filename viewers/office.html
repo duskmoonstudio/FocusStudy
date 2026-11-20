@@ -1,0 +1,92 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Document</title>
+<style>
+  html, body { margin: 0; background: #3a3f4b; font-family: 'Segoe UI', sans-serif; }
+  #status { color: #cfd3dc; padding: 28px; text-align: center; font-size: 14px; }
+  /* Word */
+  .docx-wrapper { background: #3a3f4b !important; padding: 28px 0 !important; }
+  .docx-wrapper > section.docx { box-shadow: 0 4px 18px rgba(0,0,0,.35) !important; margin-bottom: 26px !important; }
+  /* Excel */
+  #tabs { position: sticky; top: 0; z-index: 2; display: flex; flex-wrap: wrap; gap: 4px; padding: 8px 10px; background: #1e2330; }
+  #tabs button { background: #2a3040; color: #cfd3dc; border: 0; border-radius: 6px; padding: 6px 12px; cursor: pointer; font: 13px 'Segoe UI', sans-serif; }
+  #tabs button.on { background: #6c8cff; color: #fff; }
+  #sheet { padding: 14px; overflow: auto; }
+  #sheet table { border-collapse: collapse; background: #fff; font: 13px Calibri, 'Segoe UI', sans-serif; color: #111; }
+  #sheet td, #sheet th { border: 1px solid #d0d4dc; padding: 3px 8px; white-space: nowrap; }
+  #sheet tr:first-child td { background: #f3f5f9; font-weight: 600; }
+  /* PowerPoint */
+  .slides { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 26px 0 40px; }
+  .slide-wrap { position: relative; overflow: hidden; background: #fff; box-shadow: 0 4px 18px rgba(0,0,0,.4); }
+  .slide { position: absolute; left: 0; top: 0; transform-origin: 0 0; overflow: hidden; }
+  .sh { position: absolute; box-sizing: border-box; }
+  .sh p { margin: 0; overflow-wrap: break-word; }
+  .num { color: #aab1c0; font-size: 12px; margin: 6px 0 14px; text-align: center; }
+</style>
+</head>
+<body>
+<div id="status">Opening…</div>
+<div id="out"></div>
+<!-- Open-source libraries: JSZip (MIT), docx-preview (Apache-2.0), SheetJS (Apache-2.0). Licences in lib/. -->
+<script src="lib/jszip.min.js"></script>
+<script src="lib/docx-preview.min.js"></script>
+<script src="lib/xlsx.full.min.js"></script>
+<script src="pptx.js"></script>
+<script>
+  const q = new URLSearchParams(location.search);
+  const src = q.get('src'), type = (q.get('type') || '').toLowerCase();
+  const status = document.getElementById('status'), out = document.getElementById('out');
+  const fail = msg => { status.textContent = msg; };
+
+  (async () => {
+    try {
+      const res = await fetch(src);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const buf = await res.arrayBuffer();
+      if (type === 'docx' || type === 'docm' || type === 'dotx') {
+        await docx.renderAsync(buf, out, null, { inWrapper: true, ignoreLastRenderedPageBreak: true, experimental: true });
+        status.remove();
+      } else if (['xlsx', 'xlsm', 'xls', 'ods', 'csv'].includes(type)) {
+        renderSheets(buf);
+      } else if (type === 'pptx' || type === 'ppsx' || type === 'potx') {
+        status.textContent = 'Rendering slides…';
+        await PptxView.render(buf, out);
+        status.remove();
+      } else {
+        fail('This file type is not supported.');
+      }
+    } catch (e) {
+      fail('Could not open this file: ' + (e && e.message ? e.message : e));
+    }
+  })();
+
+  function renderSheets(buf) {
+    const wb = XLSX.read(buf, { type: 'array', cellDates: true, cellFormula: true, sheetStubs: true });
+    status.remove();
+    const tabs = document.createElement('div'); tabs.id = 'tabs';
+    const sheet = document.createElement('div'); sheet.id = 'sheet';
+    out.append(tabs, sheet);
+    const show = (name, btn) => {
+      tabs.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === btn));
+      const ws = wb.Sheets[name];
+      // Formula cells without a saved result (file never calculated) show their formula instead of nothing.
+      if (ws) for (const k of Object.keys(ws)) {
+        const c = ws[k];
+        if (k[0] !== '!' && c && c.f && (c.t === 'z' || c.v === undefined || c.v === '' || c.v === null)) { c.t = 's'; c.v = '=' + c.f; delete c.w; }
+      }
+      sheet.innerHTML = ws && ws['!ref'] ? XLSX.utils.sheet_to_html(ws, { editable: false }) : '<p style="color:#cfd3dc">This sheet is empty.</p>';
+    };
+    wb.SheetNames.forEach((n, i) => {
+      const b = document.createElement('button');
+      b.textContent = n;
+      b.onclick = () => show(n, b);
+      tabs.append(b);
+      if (i === 0) show(n, b);
+    });
+    if (wb.SheetNames.length < 2) tabs.style.display = 'none';
+  }
+</script>
+</body>
+</html>
