@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Focus Study</title>
+<meta name="description" content="A free, open-source distraction-free study app for Windows: locked fullscreen sessions, a monitored browser, your study folder, notes, Office viewers, and Python / MATLAB.">
+<style>
+  :root {
+    --bg: #0f1115; --panel: #171a21; --panel2: #1e2330; --line: #2a3040;
+    --text: #e6e8ee; --muted: #9aa3b5; --accent: #6c8cff; --accent2: #8aa2ff; --good: #3ecf8e;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.6 'Segoe UI', system-ui, -apple-system, sans-serif; }
+  a { color: var(--accent2); }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+  header.top { border-bottom: 1px solid var(--line); }
+  header.top .wrap { display: flex; align-items: center; gap: 10px; height: 60px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--good); }
+  .brand { font-weight: 700; font-size: 18px; }
+  header.top nav { margin-left: auto; display: flex; gap: 18px; font-size: 14px; }
+  header.top nav a { color: var(--muted); text-decoration: none; }
+  header.top nav a:hover { color: var(--text); }
+
+  .hero { padding: 72px 0 40px; text-align: center; }
+  .hero h1 { font-size: clamp(32px, 5vw, 50px); line-height: 1.15; margin: 0 0 16px; letter-spacing: -0.5px; }
+  .hero p.lead { color: var(--muted); font-size: 18px; max-width: 660px; margin: 0 auto 30px; }
+  .btns { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+  .btn { display: inline-flex; flex-direction: column; align-items: center; padding: 12px 22px; border-radius: 10px;
+         text-decoration: none; font-weight: 600; background: var(--panel2); color: var(--text); border: 1px solid var(--line); }
+  .btn small { font-weight: 400; font-size: 12.5px; color: var(--muted); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary small { color: #e3e8ff; }
+  .btn:hover { filter: brightness(1.08); }
+  .fine { color: var(--muted); font-size: 13.5px; margin-top: 16px; }
+
+  .shot { margin: 30px auto 0; border-radius: 12px; overflow: hidden; border: 1px solid var(--line);
+          box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+  .shot img { display: block; width: 100%; height: auto; }
+  .caption { color: var(--muted); font-size: 13.5px; text-align: center; margin: 10px 0 0; }
+
+  section { padding: 56px 0; border-top: 1px solid var(--line); }
+  section h2 { font-size: 28px; margin: 0 0 8px; }
+  section p.sub { color: var(--muted); margin: 0 0 28px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; }
+  .card h3 { margin: 0 0 6px; font-size: 16.5px; }
+  .card p { margin: 0; color: var(--muted); font-size: 14.5px; }
+
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 760px) { .two { grid-template-columns: 1fr; } header.top nav { display: none; } }
+
+  ol.steps { counter-reset: s; list-style: none; padding: 0; margin: 0; }
+  ol.steps li { counter-increment: s; position: relative; padding: 0 0 18px 46px; }
+  ol.steps li::before { content: counter(s); position: absolute; left: 0; top: 0; width: 30px; height: 30px; border-radius: 50%;
+                        background: var(--panel2); border: 1px solid var(--line); display: grid; place-items: center; font-weight: 700; font-size: 14px; }
+  ol.steps li b { display: block; }
+  ol.steps li span { color: var(--muted); font-size: 14.5px; }
+  code { font-family: 'Cascadia Mono', Consolas, monospace; font-size: 13.5px; background: var(--panel2); padding: 2px 6px; border-radius: 5px; }
+  pre { background: #0a0c10; border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; overflow-x: auto; margin: 8px 0 0; }
+  pre code { background: none; padding: 0; }
+  .note { background: #1b2238; border: 1px solid #33406a; border-radius: 10px; padding: 14px 16px; font-size: 14.5px; margin-top: 18px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+  td, th { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; }
+  footer { border-top: 1px solid var(--line); padding: 28px 0 40px; color: var(--muted); font-size: 13.5px; text-align: center; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <span class="dot"></span><span class="brand">Focus Study</span>
+    <nav>
+      <a href="#features">Features</a>
+      <a href="#download">Download</a>
+      <a href="#build">Build it yourself</a>
+      <a href="https://github.com/duskmoonstudio/FocusStudy">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap hero">
+  <h1>Study without the escape hatch.</h1>
+  <p class="lead">Focus Study is a free, open-source study app for Windows. Set a session length, and your PC turns into a locked,
+    fullscreen study space. You still get a browser (AI sites included), your study folder, notes, Office files, and Python / MATLAB.</p>
+  <div class="btns">
+    <a class="btn primary" href="https://github.com/duskmoonstudio/FocusStudy/releases/latest/download/FocusStudy.exe">
+      Download for Windows<small>Most PCs (Intel / AMD), 72 MB</small></a>
+    <a class="btn" href="https://github.com/duskmoonstudio/FocusStudy/releases/latest/download/FocusStudy-arm64.exe">
+      ARM64 version<small>Snapdragon / Copilot+ PCs</small></a>
+  </div>
+  <p class="fine">Single file, no install. Try it first with <code>FocusStudy.exe --demo</code>, the same screens without the lock.</p>
+
+  <div class="shot"><img src="img/exit.png" alt="Focus Study with the exit steps open beside the code editor" width="1920" height="1080"></div>
+  <p class="caption">Leaving early takes four steps, and your work stays in view the whole time.</p>
+</div>
+
+<section id="features">
+  <div class="wrap">
+    <h2>What it does</h2>
+    <p class="sub">Built to keep you in the work, not to watch you. No webcam, no account, nothing leaves your PC.</p>
+    <div class="grid">
+      <div class="card"><h3>🔒 Real lock</h3><p>Fullscreen with no title bar, no taskbar and no clock. Win key, Alt+Tab and friends are blocked; extra monitors go dark.</p></div>
+      <div class="card"><h3>🚪 Deliberate exit</h3><p>Alt+F4 starts the exit steps: a reason, a typed pledge, a sum, then a cool-down. Ctrl+Alt+Del always works for emergencies.</p></div>
+      <div class="card"><h3>🌐 Monitored browser</h3><p>AI tools and websites are allowed. Blocked sites can't load, and off-topic pages get a gentle nudge.</p></div>
+      <div class="card"><h3>💤 Idle check</h3><p>No input for a few minutes? It asks whether you're still there. Videos and running code don't count as idle.</p></div>
+      <div class="card"><h3>📁 One folder only</h3><p>Only your chosen study folder is reachable. Downloads land in it, and uploads can only come from it.</p></div>
+      <div class="card"><h3>📝 Notes everywhere</h3><p>A notes panel beside the browser, files and code. It autosaves to your folder, and one click clips the current page as a source.</p></div>
+      <div class="card"><h3>📄 Office files</h3><p>Opens Word, Excel and PowerPoint files with bundled open-source viewers. PDF, images and video work too.</p></div>
+      <div class="card"><h3>🐍 Python &amp; MATLAB</h3><p>A built-in editor runs Python and MATLAB: your installed MATLAB, or free GNU Octave. Plots show up beside the output.</p></div>
+    </div>
+
+    <div class="two" style="margin-top:22px">
+      <div><div class="shot" style="margin:0"><img src="img/notes.png" alt="Notes panel beside the study files" width="1920" height="1080" loading="lazy"></div>
+        <p class="caption">Notes stay open beside whatever you're working on.</p></div>
+      <div><div class="shot" style="margin:0"><img src="img/slides.png" alt="A PowerPoint file open in the viewer" width="1580" height="1030" loading="lazy"></div>
+        <p class="caption">PowerPoint, Word and Excel open right inside the app.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="download">
+  <div class="wrap">
+    <h2>Download and first run</h2>
+    <p class="sub">Pick the file for your PC. Not sure? Settings → System → About → "System type".</p>
+    <table>
+      <tr><th>File</th><th>For</th></tr>
+      <tr><td><a href="https://github.com/duskmoonstudio/FocusStudy/releases/latest/download/FocusStudy.exe">FocusStudy.exe</a></td><td>Intel / AMD 64-bit (most PCs)</td></tr>
+      <tr><td><a href="https://github.com/duskmoonstudio/FocusStudy/releases/latest/download/FocusStudy-arm64.exe">FocusStudy-arm64.exe</a></td><td>ARM laptops: Snapdragon, Surface Pro X, Copilot+ PCs</td></tr>
+    </table>
+    <div class="note">
+      <b>Windows may say "Windows protected your PC".</b> The app isn't code-signed (signing certificates cost money), so
+      SmartScreen doesn't know it yet. Click <b>More info → Run anyway</b>. Every exe is built in public by GitHub from the
+      source code: you can see each build on the <a href="https://github.com/duskmoonstudio/FocusStudy/actions">Actions page</a>.
+    </div>
+    <p style="margin-top:18px;color:var(--muted);font-size:14.5px">Needs Windows 10 or 11 with the WebView2 runtime (built into Windows 11).
+      Optional: <a href="https://www.python.org/downloads/">Python</a>, and MATLAB or <a href="https://octave.org/download">GNU Octave</a>.
+      All versions are on the <a href="https://github.com/duskmoonstudio/FocusStudy/releases">Releases page</a>.</p>
+  </div>
+</section>
+
+<section id="build">
+  <div class="wrap">
+    <h2>Build your own exe, right from your browser</h2>
+    <p class="sub">Changed something, or just want to build it yourself? GitHub can build the exe for you for free. You don't need to install anything.</p>
+    <div class="two">
+      <div>
+        <ol class="steps">
+          <li><b>Make your own copy</b><span>Sign in to GitHub, then click
+            <a href="https://github.com/duskmoonstudio/FocusStudy/fork">Fork</a> → <i>Create fork</i>.</span></li>
+          <li><b>Change what you like (optional)</b><span>Open any file in your fork, click the ✏️ pencil, edit, then <i>Commit changes</i>.
+            Blocked sites and keywords are in <code>Settings.cs</code>; the screens are in the <code>.xaml</code> files.</span></li>
+          <li><b>Turn on Actions</b><span>In your fork, open the <i>Actions</i> tab and click <i>I understand my workflows, go ahead and enable them</i>.</span></li>
+          <li><b>Run the build</b><span>Pick <i>build</i> on the left → <i>Run workflow</i> → <i>Run workflow</i>. It takes about 2 minutes.</span></li>
+          <li><b>Download your exe</b><span>Open the finished run (green ✓), scroll to <i>Artifacts</i> and download <i>FocusStudy</i>.
+            Unzip it to get <code>FocusStudy.exe</code> and <code>FocusStudy-arm64.exe</code>.</span></li>
+        </ol>
+        <div class="note" style="margin-top:4px">
+          <b>Want a download page like this project's?</b> In your fork, go to <i>Releases → Draft a new release</i>, type a tag such
+          as <code>v1.0.0</code>, and publish. The build runs and attaches both exes to that release automatically.
+        </div>
+      </div>
+      <div>
+        <h3 style="margin:0 0 6px">Or build on your own PC</h3>
+        <p style="color:var(--muted);font-size:14.5px;margin:0 0 6px">Install the <a href="https://dotnet.microsoft.com/download">.NET 10 SDK</a>, then:</p>
+<pre><code>git clone https://github.com/duskmoonstudio/FocusStudy.git
+cd FocusStudy
+powershell -ExecutionPolicy Bypass -File publish.ps1</code></pre>
+        <p style="color:var(--muted);font-size:14.5px">Your exe is in <code>dist\FocusStudy.exe</code>. For ARM64, add <code>-Runtime win-arm64</code>.
+          No Git? Use <i>Code → Download ZIP</i> on GitHub instead of <code>git clone</code>.</p>
+        <p style="color:var(--muted);font-size:14.5px">While you're changing things, run it with <code>--demo</code>, so a bug can't trap you in a locked session.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    Focus Study is open source under the MIT licence ·
+    <a href="https://github.com/duskmoonstudio/FocusStudy">Source on GitHub</a> ·
+    Bundled viewers: JSZip (MIT), docx-preview and SheetJS (Apache-2.0)
+  </div>
+</footer>
+
+</body>
+</html>

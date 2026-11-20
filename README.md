@@ -4,6 +4,8 @@ A distraction-free study app for Windows. You set a session length; the PC then 
 study space with a browser, your study folder, notes, document viewers, and Python / MATLAB coding
 (your installed MATLAB, or free GNU Octave).
 
+**Website:** https://duskmoonstudio.github.io/FocusStudy/ (source in `docs/`)
+
 ## Download
 
 Grab the exe for your PC from the **Releases** page (or the latest **Actions** build):
