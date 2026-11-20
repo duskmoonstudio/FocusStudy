@@ -88,6 +88,14 @@
             <DockPanel>
                 <Button x:Name="StartBtn" DockPanel.Dock="Right" Style="{StaticResource Primary}" Content="Start focus session"
                         Padding="22,10" FontSize="14" Click="Start_Click"/>
+                <StackPanel DockPanel.Dock="Left" VerticalAlignment="Center" Margin="0,0,24,0">
+                    <TextBlock FontSize="12" Foreground="{StaticResource Muted}">
+                        Made by <Run Foreground="{StaticResource Text}" Text="Arun VT"/> (Dusk Moon Studio)
+                    </TextBlock>
+                    <TextBlock FontSize="12" Foreground="{StaticResource Muted}" Margin="0,2,0,0">
+                        Idea by <Run Foreground="{StaticResource Text}" Text="Aditya Kini"/>
+                    </TextBlock>
+                </StackPanel>
                 <TextBlock x:Name="ErrorText" Foreground="{StaticResource Danger}" VerticalAlignment="Center" TextWrapping="Wrap"/>
             </DockPanel>
         </Border>
