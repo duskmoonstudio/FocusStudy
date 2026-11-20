@@ -22,17 +22,27 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
-      - name: Publish single-file exe
+      - name: Publish x64 exe (Intel / AMD)
         shell: pwsh
-        run: ./publish.ps1
+        run: ./publish.ps1 -Runtime win-x64
+
+      - name: Publish ARM64 exe (Snapdragon / Copilot+ PCs)
+        shell: pwsh
+        run: |
+          ./publish.ps1 -Runtime win-arm64
+          Copy-Item dist-arm64/FocusStudy.exe dist/FocusStudy-arm64.exe
 
       - uses: actions/upload-artifact@v4
         with:
           name: FocusStudy
-          path: dist/FocusStudy.exe
+          path: |
+            dist/FocusStudy.exe
+            dist/FocusStudy-arm64.exe
 
       - name: Attach to release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/FocusStudy.exe
+          files: |
+            dist/FocusStudy.exe
+            dist/FocusStudy-arm64.exe

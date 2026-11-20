@@ -6,10 +6,17 @@ study space with a browser, your study folder, notes, document viewers, and Pyth
 
 ## Download
 
-Grab `FocusStudy.exe` from the **Releases** page (or the latest **Actions** build). It is a single file:
-no install and no .NET needed. Run it, or try it first with `FocusStudy.exe --demo`.
+Grab the exe for your PC from the **Releases** page (or the latest **Actions** build):
 
-Requirements: Windows 10/11 (64-bit) with the WebView2 runtime (built into Windows 11).
+| File | For |
+|---|---|
+| `FocusStudy.exe` | Most PCs (Intel / AMD 64-bit) |
+| `FocusStudy-arm64.exe` | ARM laptops (Snapdragon, Surface Pro X, Copilot+ PCs) |
+
+Each is a single file: no install and no .NET needed. Run it, or try it first with `--demo`.
+Not sure which you have? Settings → System → About → "System type".
+
+Requirements: Windows 10/11 with the WebView2 runtime (built into Windows 11).
 Optional: Python (python.org), and MATLAB or GNU Octave (octave.org/download, free).
 
 ## Build from source
@@ -22,6 +29,7 @@ bin\Release\net10.0-windows\FocusStudy.exe            # real session (locks the 
 bin\Release\net10.0-windows\FocusStudy.exe --demo     # try it in a normal window, no lock
 
 powershell -ExecutionPolicy Bypass -File publish.ps1  # -> dist\FocusStudy.exe (single file)
+powershell -ExecutionPolicy Bypass -File publish.ps1 -Runtime win-arm64  # -> dist-arm64\FocusStudy.exe
 ```
 
 Tip while developing: always use `--demo`, so a bug can't trap you in a locked session.
