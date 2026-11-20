@@ -1,3 +1,5 @@
+<img src="docs/img/icon.png" alt="Focus Study icon" width="80">
+
 # Focus Study
 
 A distraction-free study app for Windows. You set a session length; the PC then locks into a fullscreen
