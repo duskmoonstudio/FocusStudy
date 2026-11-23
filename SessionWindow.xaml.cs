@@ -78,11 +78,12 @@ namespace FocusStudy
         };
 
         readonly Settings _s;
-        readonly TimeSpan _planned;
+        TimeSpan _planned;       // length of the current block (changes when the user continues)
         readonly bool _demo;
         readonly string _snapDir;
         readonly string _root;
-        readonly FocusMonitor _mon;
+        FocusMonitor _mon;       // stats for the current block
+        int _block = 1;          // 1 = first session, 2+ = extra time added from the summary
         readonly Stopwatch _sw = new Stopwatch();
         readonly CodeRunner _runner = new CodeRunner();
         readonly List<BrowserTab> _tabs = new List<BrowserTab>();
@@ -94,6 +95,7 @@ namespace FocusStudy
         DispatcherTimer _tick, _guard, _bannerTimer, _cooldown;
         CoreWebView2Environment _env;
         WebView2 _viewer;
+        string _viewerText;
         Task _viewerInit;
         BrowserTab _cur, _flagTab;
         CoreWebView2 _pickerCore;
@@ -172,6 +174,8 @@ namespace FocusStudy
             _bannerTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(6) };
             _bannerTimer.Tick += (_, __) => { _bannerTimer.Stop(); TopBanner.Visibility = Visibility.Collapsed; };
 
+            ThemeBtn.Content = Theme.ToggleLabel;
+            Theme.Changed += OnThemeChanged;
             InitCode();
             InitNotes();
             LoadFolder(_root);
@@ -309,17 +313,17 @@ namespace FocusStudy
             int recent = _mon.RecentEvents(_sw.Elapsed, TimeSpan.FromMinutes(15));
             if (recent >= 3)
             {
-                FocusDot.Fill = (Brush)FindResource("Danger");
+                FocusDot.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, "Danger");
                 FocusText.Text = "Lots of drifting. Pick one task and go.";
             }
             else if (recent >= 1)
             {
-                FocusDot.Fill = (Brush)FindResource("Warn");
+                FocusDot.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, "Warn");
                 FocusText.Text = "Refocus. You've got this.";
             }
             else
             {
-                FocusDot.Fill = (Brush)FindResource("Good");
+                FocusDot.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, "Good");
                 FocusText.Text = "Focused";
             }
         }
@@ -337,7 +341,9 @@ namespace FocusStudy
             SaveNote();
             if (_snapDir == null) _mon.AppendLog(_planned, _sw.Elapsed, completed);
 
-            SummaryTitle.Text = completed ? "Session complete. Well done." : "Session ended early";
+            SummaryTitle.Text = completed
+                ? (_block == 1 ? "Session complete. Well done." : "Extra time complete. Great effort.")
+                : "Session ended early";
             SummaryText.Text = _mon.Summary(_planned, _sw.Elapsed, completed);
             ShowOverlay(SummaryCard);
         }
@@ -348,6 +354,7 @@ namespace FocusStudy
             _kb?.Dispose();
             _guard?.Stop();
             Microsoft.Win32.SystemEvents.DisplaySettingsChanged -= OnDisplaysChanged;
+            Theme.Changed -= OnThemeChanged;
             _runner.Shutdown();
             foreach (var b in _blackouts) { b.AllowClose = true; b.Close(); }
             Application.Current.Shutdown();
@@ -361,6 +368,25 @@ namespace FocusStudy
         }
 
         void SummaryUnlock_Click(object sender, RoutedEventArgs e) => Unlock();
+
+        /// <summary>
+        /// "Keep going": starts another block straight from the summary, with every tab, file, code and note
+        /// as it was. The lock never lifts in between. Each block gets its own summary and its own log row.
+        /// </summary>
+        void Continue_Click(object sender, RoutedEventArgs e)
+        {
+            if (!_ended) return;
+            int minutes = int.Parse((string)((Button)sender).Tag);
+            _planned = TimeSpan.FromMinutes(minutes);
+            _mon = new FocusMonitor(_s);
+            _block++;
+            _ended = false;
+            _sw.Restart();
+            _tick?.Start();
+            HideOverlay();
+            UpdateFocusIndicator();
+            ShowBanner(minutes >= 60 ? "Keep going: one more hour added." : $"Keep going: {minutes} more minutes added.");
+        }
 
         // =====================================================================
         // Overlays & banner
@@ -555,6 +581,39 @@ namespace FocusStudy
 
         void Nav_Click(object sender, RoutedEventArgs e) => ShowPage((string)((Button)sender).Tag);
 
+        // =====================================================================
+        // Light / dark mode
+        // =====================================================================
+
+        void Theme_Click(object sender, RoutedEventArgs e)
+        {
+            _s.Theme = Theme.Toggle();
+            try { _s.Save(); } catch { }
+        }
+
+        void OnThemeChanged()
+        {
+            ThemeBtn.Content = Theme.ToggleLabel;
+            foreach (var t in _tabs) if (t.Core != null) ApplyColorScheme(t.Core);
+            if (_viewer?.CoreWebView2 != null)
+            {
+                ApplyColorScheme(_viewer.CoreWebView2);
+                if (_viewerText != null) _ = OpenInViewer(_viewerText, true); // re-render plain-text preview in the new colours
+            }
+        }
+
+        /// <summary>Websites that support it (and the document viewers) follow the app's light / dark mode.</summary>
+        static void ApplyColorScheme(CoreWebView2 c)
+        {
+            try
+            {
+                c.Profile.PreferredColorScheme = Theme.IsLight
+                    ? CoreWebView2PreferredColorScheme.Light
+                    : CoreWebView2PreferredColorScheme.Dark;
+            }
+            catch { }
+        }
+
         void ShowPage(string page)
         {
             BrowserPage.Visibility = page == "browser" ? Visibility.Visible : Visibility.Collapsed;
@@ -568,8 +627,8 @@ namespace FocusStudy
 
         void StyleToggle(Button b, bool on)
         {
-            b.Foreground = (Brush)FindResource(on ? "Text" : "Muted");
-            b.Background = on ? (Brush)FindResource("Panel2") : Brushes.Transparent;
+            b.SetResourceReference(ForegroundProperty, on ? "Text" : "Muted");
+            if (on) b.SetResourceReference(BackgroundProperty, "Panel2"); else b.Background = Brushes.Transparent;
         }
 
         void Window_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -607,6 +666,7 @@ namespace FocusStudy
 
         void ApplySafeSettings(CoreWebView2 c)
         {
+            ApplyColorScheme(c);
             var st = c.Settings;
             st.AreDevToolsEnabled = false;
             st.AreBrowserAcceleratorKeysEnabled = false; // no Save As, Print dialog, view-source windows, etc.
@@ -705,8 +765,8 @@ namespace FocusStudy
             {
                 bool on = t == tab;
                 t.View.Visibility = on ? Visibility.Visible : Visibility.Collapsed;
-                t.Header.Background = on ? (Brush)FindResource("Panel2") : Brushes.Transparent;
-                t.Label.Foreground = (Brush)FindResource(on ? "Text" : "Muted");
+                if (on) t.Header.SetResourceReference(Border.BackgroundProperty, "Panel2"); else t.Header.Background = Brushes.Transparent;
+                t.Label.SetResourceReference(TextBlock.ForegroundProperty, on ? "Text" : "Muted");
             }
             AddressBox.Text = tab.Core?.Source ?? "";
             UpdateNavButtons();
@@ -1205,11 +1265,12 @@ namespace FocusStudy
             try
             {
                 await EnsureViewer();
+                _viewerText = asText ? path : null;
                 if (asText)
                 {
                     var fi = new FileInfo(path);
                     string text = fi.Length > 1_500_000 ? "(File is too large to preview.)" : File.ReadAllText(path);
-                    string html = "<!doctype html><meta charset='utf-8'><style>body{margin:0;background:#0f1115;color:#e6e8ee;" +
+                    string html = "<!doctype html><meta charset='utf-8'><style>body{margin:0;" + (Theme.IsLight ? "background:#ffffff;color:#1b1f29;" : "background:#0f1115;color:#e6e8ee;") +
                                   "font:13px/1.55 'Cascadia Mono',Consolas,monospace}pre{padding:20px;white-space:pre-wrap;word-break:break-word}</style><pre>" +
                                   WebUtility.HtmlEncode(text) + "</pre>";
                     _viewer.CoreWebView2.NavigateToString(html);
@@ -1678,7 +1739,7 @@ namespace FocusStudy
             var dv = new DrawingVisual();
             using (var dc = dv.RenderOpen())
             {
-                dc.DrawRectangle(new SolidColorBrush(Color.FromRgb(0x0F, 0x11, 0x15)), null, new Rect(0, 0, w, h));
+                dc.DrawRectangle((Brush)Application.Current.Resources["Bg"], null, new Rect(0, 0, w, h));
                 dc.DrawRectangle(new VisualBrush(el), null, new Rect(0, 0, w, h));
             }
             rtb.Render(dv);
@@ -1722,7 +1783,7 @@ namespace FocusStudy
                     await Shot("2c_notes.png");
                     ShowNotes(false);
                 }
-                ShowPage("code"); Run_Click(null, null); await Task.Delay(2500); await Shot("3_code.png");
+                ShowPage("code"); Run_Click(null, null); await Task.Delay(2500); await Shot("3_code.png"); string keep = _s.Theme; Theme_Click(null, null); await Shot("3c_code_switched.png"); Theme.Apply(keep); _s.Theme = keep; try { _s.Save(); } catch { }
                 if (Environment.GetEnvironmentVariable("FOCUS_SNAP_MATLAB") == "1")
                 {
                     SetLang("octave"); _loadingCode = true; Editor.Text = CodeTemplate("octave"); _loadingCode = false;
@@ -1743,6 +1804,9 @@ namespace FocusStudy
                 _flagTab = null; DistractTitle.Text = "Funny cat compilation 2026 - YouTube"; DistractReason.Text = "The page title mentions “funny”, which doesn't look like study material.";
                 ShowOverlay(DistractCard); await Shot("6_offtopic.png");
                 HideOverlay(); EndSession(true); await Shot("7_summary.png");
+                Continue_Click(new Button { Tag = "15" }, null); ShowPage("browser"); await Shot("8_continued.png");
+                File.WriteAllText(Path.Combine(_snapDir, "continue.txt"), $"ended={_ended} block={_block} planned={_planned} overlay={(_overlay == null ? "none" : _overlay.Name)}");
+                EndSession(true); await Shot("9_summary_extra.png");
             }
             catch (Exception ex)
             {

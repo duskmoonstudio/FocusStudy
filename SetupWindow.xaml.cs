@@ -30,7 +30,7 @@ namespace FocusStudy
 
             var py = CodeRunner.FindPython(_s);
             PythonStatus.Text = py != null ? $"✓  Python ready  ({py})" : "✗  Python not found. Install it free from python.org.";
-            PythonStatus.Foreground = (System.Windows.Media.Brush)FindResource(py != null ? "Good" : "Warn");
+            PythonStatus.SetResourceReference(TextBlock.ForegroundProperty, py != null ? "Good" : "Warn");
             string engine = CodeRunner.MEngine(_s);
             if (engine == "matlab")
                 OctaveStatus.Text = $"✓  MATLAB ready, using your installed copy  ({CodeRunner.FindMatlab(_s)})";
@@ -38,8 +38,10 @@ namespace FocusStudy
                 OctaveStatus.Text = $"✓  MATLAB-compatible GNU Octave ready  ({CodeRunner.FindOctave(_s)})";
             else
                 OctaveStatus.Text = "✗  No MATLAB or GNU Octave found. Octave is free and runs most MATLAB code. Install one before your session.";
-            OctaveStatus.Foreground = (System.Windows.Media.Brush)FindResource(engine != null ? "Good" : "Warn");
+            OctaveStatus.SetResourceReference(TextBlock.ForegroundProperty, engine != null ? "Good" : "Warn");
             GetOctaveBtn.Visibility = engine != null ? Visibility.Collapsed : Visibility.Visible;
+
+            ThemeBtn.Content = Theme.ToggleLabel;
 
             if (_demo)
             {
@@ -50,6 +52,13 @@ namespace FocusStudy
             Closed += (_, __) => { if (!_started) Application.Current.Shutdown(); };
 
             if (_snap != null) Loaded += (_, __) => RunSnapshot();
+        }
+
+        void Theme_Click(object sender, RoutedEventArgs e)
+        {
+            _s.Theme = Theme.Toggle();
+            ThemeBtn.Content = Theme.ToggleLabel;
+            try { _s.Save(); } catch { }
         }
 
         void Preset_Click(object sender, RoutedEventArgs e)

@@ -51,6 +51,7 @@ Tip while developing: always use `--demo`, so a bug can't trap you in a locked s
 | `WebScripts.cs` | Script injected into pages: study-folder-only upload picker |
 | `BlackoutWindow.cs` | Covers extra monitors |
 | `Settings.cs` | `%AppData%\FocusStudy\settings.json` |
+| `Theme.cs` | Light and dark colour palettes, switched live |
 | `viewers/` | Office viewers (docx-preview, SheetJS, own `pptx.js`) |
 
 ## Contributing
@@ -66,6 +67,8 @@ or by itself within ~45 s if the app is closed. Without MATLAB, Octave is used. 
 ## During a session
 
 - No clock or countdown anywhere. The session ends on its own, then shows a summary.
+- When it ends, **Keep going** adds +15 min / +25 min / +45 min / +1 hour without unlocking; tabs, files, code and notes stay as they were.
+- **☀ Light / 🌙 Dark** switches the theme any time (setup screen or the session's top bar). Websites that support it and the document viewers follow along.
 - Blocked: Win key, Alt+Tab, Alt+Esc, Alt+Space, Ctrl+Esc, Ctrl+Shift+Esc, taskbar, other monitors.
 - **Alt+F4** starts the exit steps: reason → typed pledge (no paste) → arithmetic → cool-down → unlock.
 - **Ctrl+Alt+Del** always works (Windows reserves it). Task Manager is allowed to come to the front.

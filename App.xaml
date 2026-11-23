@@ -3,23 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              ShutdownMode="OnExplicitShutdown">
     <Application.Resources>
-        <SolidColorBrush x:Key="Bg" Color="#0F1115"/>
-        <SolidColorBrush x:Key="Panel" Color="#161A22"/>
-        <SolidColorBrush x:Key="Panel2" Color="#1E2330"/>
-        <SolidColorBrush x:Key="Line" Color="#262C3A"/>
-        <SolidColorBrush x:Key="Text" Color="#E6E8EE"/>
-        <SolidColorBrush x:Key="Muted" Color="#8A93A6"/>
-        <SolidColorBrush x:Key="Accent" Color="#6C8CFF"/>
-        <SolidColorBrush x:Key="Good" Color="#3DDC97"/>
-        <SolidColorBrush x:Key="Warn" Color="#FFB547"/>
-        <SolidColorBrush x:Key="Danger" Color="#FF6B6B"/>
+        <!-- Colours are set by Theme.cs (dark / light) and referenced with DynamicResource. -->
         <FontFamily x:Key="Mono">Cascadia Mono, Consolas</FontFamily>
 
         <!-- Buttons -->
         <Style x:Key="BtnBase" TargetType="Button">
-            <Setter Property="Foreground" Value="{StaticResource Text}"/>
-            <Setter Property="Background" Value="#232836"/>
-            <Setter Property="BorderBrush" Value="#2E3445"/>
+            <Setter Property="Foreground" Value="{DynamicResource Text}"/>
+            <Setter Property="Background" Value="{DynamicResource BtnBg}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BtnLine}"/>
             <Setter Property="Padding" Value="14,7"/>
             <Setter Property="Margin" Value="3,0"/>
             <Setter Property="FontSize" Value="13"/>
@@ -49,20 +40,20 @@
         </Style>
         <Style TargetType="Button" BasedOn="{StaticResource BtnBase}"/>
         <Style x:Key="Primary" TargetType="Button" BasedOn="{StaticResource BtnBase}">
-            <Setter Property="Background" Value="{StaticResource Accent}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource Accent}"/>
+            <Setter Property="Background" Value="{DynamicResource Accent}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Accent}"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
         </Style>
         <Style x:Key="DangerBtn" TargetType="Button" BasedOn="{StaticResource BtnBase}">
-            <Setter Property="Background" Value="#3A2026"/>
-            <Setter Property="BorderBrush" Value="#5A2A33"/>
-            <Setter Property="Foreground" Value="{StaticResource Danger}"/>
+            <Setter Property="Background" Value="{DynamicResource DangerBg}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource DangerLine}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Danger}"/>
         </Style>
         <Style x:Key="Ghost" TargetType="Button" BasedOn="{StaticResource BtnBase}">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{StaticResource Muted}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Muted}"/>
         </Style>
         <Style x:Key="TabClose" TargetType="Button" BasedOn="{StaticResource Ghost}">
             <Setter Property="Padding" Value="6,0,6,2"/>
@@ -72,11 +63,11 @@
 
         <!-- Text inputs -->
         <Style TargetType="TextBox">
-            <Setter Property="Background" Value="#0B0D12"/>
-            <Setter Property="Foreground" Value="{StaticResource Text}"/>
-            <Setter Property="BorderBrush" Value="#2E3445"/>
-            <Setter Property="CaretBrush" Value="{StaticResource Text}"/>
-            <Setter Property="SelectionBrush" Value="{StaticResource Accent}"/>
+            <Setter Property="Background" Value="{DynamicResource InputBg}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Text}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BtnLine}"/>
+            <Setter Property="CaretBrush" Value="{DynamicResource Text}"/>
+            <Setter Property="SelectionBrush" Value="{DynamicResource Accent}"/>
             <Setter Property="Padding" Value="8,6"/>
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -97,11 +88,11 @@
         <Style TargetType="ListBox">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Foreground" Value="{StaticResource Text}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Text}"/>
             <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
         </Style>
         <Style TargetType="ListBoxItem">
-            <Setter Property="Foreground" Value="{StaticResource Text}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Text}"/>
             <Setter Property="Padding" Value="10,7"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="Template">
@@ -112,10 +103,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="b" Property="Background" Value="#1F2430"/>
+                                <Setter TargetName="b" Property="Background" Value="{DynamicResource Hover}"/>
                             </Trigger>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="b" Property="Background" Value="#2A3550"/>
+                                <Setter TargetName="b" Property="Background" Value="{DynamicResource Selected}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -127,26 +118,26 @@
         <Style x:Key="H1" TargetType="TextBlock">
             <Setter Property="FontSize" Value="24"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{StaticResource Text}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Text}"/>
             <Setter Property="Margin" Value="0,0,0,10"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
         </Style>
         <Style x:Key="Body" TargetType="TextBlock">
             <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Foreground" Value="{StaticResource Muted}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Muted}"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
             <Setter Property="LineHeight" Value="21"/>
         </Style>
         <Style x:Key="Label" TargetType="TextBlock">
             <Setter Property="FontSize" Value="11"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{StaticResource Muted}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Muted}"/>
             <Setter Property="Margin" Value="0,22,0,8"/>
         </Style>
 
         <Style x:Key="Card" TargetType="Border">
-            <Setter Property="Background" Value="{StaticResource Panel}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource Line}"/>
+            <Setter Property="Background" Value="{DynamicResource Panel}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Line}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="14"/>
             <Setter Property="Padding" Value="34,30"/>

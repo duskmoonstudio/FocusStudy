@@ -24,6 +24,15 @@
   .sh { position: absolute; box-sizing: border-box; }
   .sh p { margin: 0; overflow-wrap: break-word; }
   .num { color: #aab1c0; font-size: 12px; margin: 6px 0 14px; text-align: center; }
+  /* Light mode (the app sets the preferred colour scheme) */
+  @media (prefers-color-scheme: light) {
+    html, body, .docx-wrapper { background: #e6e9ef !important; }
+    #status { color: #4b5466; }
+    #tabs { background: #f4f5f8; border-bottom: 1px solid #dadee7; }
+    #tabs button { background: #e3e7ef; color: #1b1f29; }
+    .num { color: #5b6477; }
+    .slide-wrap, .docx-wrapper > section.docx { box-shadow: 0 4px 14px rgba(0,0,0,.12) !important; }
+  }
 </style>
 </head>
 <body>

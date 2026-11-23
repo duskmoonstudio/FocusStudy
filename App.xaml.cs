@@ -39,6 +39,8 @@ namespace FocusStudy
             int i = Array.IndexOf(args, "--snap");
             if (i >= 0 && i + 1 < args.Length) { snap = args[i + 1]; demo = true; }
 
+            Theme.Apply(Settings.Load().Theme);
+            if (Environment.GetEnvironmentVariable("FOCUS_SNAP_THEME") is string t && t.Length > 0) Theme.Apply(t); // dev screenshots
             new SetupWindow(demo, snap).Show();
         }
 

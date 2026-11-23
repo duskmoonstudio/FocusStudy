@@ -18,6 +18,8 @@ namespace FocusStudy
         public string MatlabPath { get; set; } = "";
         /// <summary>"auto" (MATLAB if installed, else Octave), "matlab" or "octave".</summary>
         public string MatlabEngine { get; set; } = "auto";
+        /// <summary>"dark" or "light".</summary>
+        public string Theme { get; set; } = "dark";
 
         /// <summary>Sites that cannot be opened at all during a session.</summary>
         public List<string> BlockedDomains { get; set; } = new List<string>
